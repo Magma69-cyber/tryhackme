@@ -1,0 +1,155 @@
+Hi! It is time to look at the first part of the Metasploit rooms on TryHackMe. I am making these walkthroughs to keep myself motivated to learn cyber security, and ensure that I remember the knowledge gained by THMs rooms.
+Join me on learning cyber security. I will try and explain concepts as I go, to differentiate myself from other walkthroughs.
+
+Room URL: https://tryhackme.com/room/metasploitintro
+
+Part 1 (Introduction to Metasploit)
+Metasploit is the most popular exploitation framework, and it has two main versions:
+
+Metasploit Pro: The commercial version that facilitates the automation and management of tasks. This version has a graphical user interface (GUI).
+Metasploit Framework: The open-source version that works from the command line. This room will focus on this version, installed on the AttackBox and most commonly used penetration testing Linux distributions.
+The Metasploit Framework is a set of tools that allow information gathering, scanning, exploitation, exploit development, post-exploitation, and more. The main components of the Metasploit Framework can be summarized as follows;
+
+msfconsole: The main command-line interface.
+Modules: supporting modules such as exploits, scanners, payloads, etc.
+Tools: Stand-alone tools that will help vulnerability research, vulnerability assessment, or penetration testing. Some of these tools are msfvenom, pattern_create and pattern_offset.
+Questions
+Read the introduction to Metasploit
+
+Answer: No answer needed
+
+Part 2 (Main Components of Metasploit)
+Metasploit can be open from the terminal using the msfconsole command. This will b e your main interface to interact with the different modules which Metasploit consists of. These modules are small components which each are built for a specific task.
+
+Before moving on it is important to understand the following three concepts:
+
+Exploit: A piece of code that uses a vulnerability present on the target system.
+Vulnerability: A design, coding, or logic flaw affecting the target system. The exploitation of a vulnerability can result in disclosing confidential information or allowing the attacker to execute code on the target system.
+Payload: An exploit will take advantage of a vulnerability. However, if we want the exploit to have the result we want (gaining access to the target system, read confidential information, etc.), we need to use a payload. Payloads are the code that will run on the target system.
+Let’s briefly convert the different modules of Metasploit:
+
+Auxiliary: Any supporting module, such as scanners, crawlers and fuzzers, can be found here.
+
+Encoders: Encoders will allow you to encode the exploit and payload in the hope that a signature-based antivirus solution may miss them.
+
+Evasion: While encoders will encode the payload, they should not be considered a direct attempt to evade antivirus software. On the other hand, “evasion” modules will try that, with more or less success.
+
+Exploits: Exploits, neatly organized by target system.
+
+NOPs: NOPs (No OPeration) do nothing, literally. They are represented in the Intel x86 CPU family they are represented with 0x90, following which the CPU will do nothing for one cycle. They are often used as a buffer to achieve consistent payload sizes.
+
+Payloads: Payloads are codes that will run on the target system. Example payloads could be: getting a shell, load malware, or opening a backdoor.
+
+You will see three different directories under payloads: singles, stagers and stages.
+
+Singles: Self-contained payloads (add user, launch notepad.exe, etc.) that do not need to download an additional component to run.
+Stagers: Responsible for setting up a connection channel between Metasploit and the target system. Useful when working with staged payloads. “Staged payloads” will first upload a stager on the target system then download the rest of the payload (stage). This provides some advantages as the initial size of the payload will be relatively small.
+Stages: Downloaded by the stager. This will allow you to use larger sized payloads.
+Post: Post modules will be useful on the final stage of the penetration testing process listed above, post-exploitation.
+
+Questions
+What is the name of the code taking advantage of a flaw on the target system?
+
+Answer: Exploit
+
+What is the name of the code that runs on the target system to achieve the attacker’s goal?
+
+Answer: Payload
+
+What are self-contained payloads called?
+
+Answer: Singles
+
+Is “windows/x64/pingback_reverse_tcp” among singles or staged payload?
+some quick googling let me this page
+
+infosecmatter.com/metasploit-module-library/?mm=payload%2Fwindows%2Fx64%2Fpingback_reverse_tcp&source=post_page-----ea1be77d04e--------------------------------
+
+Here it mentions that the source code is found here: modules/payloads/singles/windows/x64/pingback_reverse_tcp.rb
+
+The answer is thus singles.
+
+Answer: singles
+
+Part 3 (Msfconsole)
+As mentioned earlier, you can launch Metasploit with the msfconsole command. Many of the regular command line commands that you know will work in the metasploit console. Examples of this are ls, ping, clear, history and much more. It is important to realize however that some features won’t work, such as output redirection. It does however feature tab completion!
+
+Msfconsole is managed by context. If you a parameter setting, and afterwards change module, you will lose your settings! This is unless you specific the variable as a global type.
+
+You select a module by giving the use command, followed by the name of the module. You can afterwards see the available options in the context by writing show options. It also shows the variables we can or are required to set.
+
+The show command can be used followed by the module type (auxiliary, payload, exploit) to list available modules. If used from the msfconsole prompt, the show command will list all modules.
+
+Further information on any module can be obtained by typing the info command within its context.
+
+The search command is one of the most useful commands available. It will search the Metasploit Framework database for modules relevant to the search query. You can search on both exploit name, CVE numbers and/or target system. An important thing to note is that the search results show a number at the beginning of each result line. This number can be used to to activate a module. You can therefore use use 0, instead of use auxiliary/admin/smb/ms17_010_command (if this is the first result of your search).
+
+Questions
+How would you search for a module related to Apache?
+
+Answer: search apache
+
+Who provided the auxiliary/scanner/ssh/ssh_login module?
+
+Simply use:
+
+info auxiliary/scanner/ssh/ssh_login module
+Answer: todb
+Part 4 (Working with modules)
+After using the use command to select a module name, you need to set its parameters. Although many parameters are shared by different modules, additional or different parameters may need to be set. You can list the parameters by entering show options.
+
+You set a parameter by entering set PARAMETER_NAME VALUE. It is important to note that some parameters have default values (make sure these fit your case), and others might be required for the tools to run. You can see this in the show options menu under the “required” column. Once you have set a parameter, you can use the show options command to check the value was set correctly.
+
+Parameters you will often use are:
+
+RHOSTS: “Remote host”, the IP address of the target system. A single IP address or a network range can be set. You can also use a file where targets are listed, one target per line using file:/path/of/the/target_file.txt.
+RPORT: “Remote port”, the port on the target system the vulnerable application is running on.
+PAYLOAD: The payload you will use with the exploit.
+LHOST: “Localhost”, the attacking machine (your AttackBox or Kali Linux) IP address.
+LPORT: “Local port”, the port you will use for the reverse shell to connect back to. This is a port on your attacking machine.
+SESSION: Each connection established to the target system using Metasploit will have a session ID. You will use this with post-exploitation modules that will connect to the target system using an existing connection.
+You can override any set parameter using the set command again with a different value. You can also clear any parameter value using the unset command or clear all set parameters with the unset all command.
+
+The setg command is used to set global values which are used for all modules. When you switch module you will still have the value set. You can clear any value set with setg using unsetg.
+
+Once all module parameters are set, you can launch the module using the exploit command. Metasploit also supports the run command, which is an alias created for the exploit command.
+
+Some modules support the check option. This will check if the target system is vulnerable without exploiting it.
+
+Once a vulnerability has been successfully exploited, a session will be created. This is the communication channel established between the target system and Metasploit.
+
+You can use the background command to background the session prompt and go back to the msfconsole prompt. Alternatively, CTRL+Z can be used to background sessions.
+
+Questions
+
+How would you set the LPORT value to 6666?
+
+We need to use the following syntax: SET PARAMETER_VALUE value.
+
+Answer: SET LPORT 6666
+
+How would you set the global value for RHOSTS to 10.10.19.23 ?
+
+Similar syntax as last question, but now using SETG to set a global value.
+
+Answer: SETG RHOSTS 10.10.19.23
+
+What command would you use to clear a set payload?
+
+To clear a value we use unset. Payload is the value name. So we can just write unset payload.
+
+Answer: unset payload
+
+What command do you use to proceed with the exploitation phase?
+
+Run or exploit. In this case THM expects a 6 letter word so it is exploit!
+
+Answer: Exploit
+Part 5 (Summary)
+As we have seen so far, Metasploit is a powerful tool that facilitates the exploitation process. The exploitation process comprises three main steps; finding the exploit, customizing the exploit, and exploiting the vulnerable service. Metasploit provides many modules that you can use for each step of the exploitation process. Through this room, we have seen the basic components of Metasploit and their respective use.
+
+Questions
+
+No answer needed.
+
+Answer: No answer needed
